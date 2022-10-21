@@ -1,0 +1,52 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := .currentPage -}}
+{{ $apiDefinition := (index $currentPage.Params "api-definition") -}}
+<!doctype html>
+<html lang="{{ $currentPage.Site.Language.Lang }}">
+	<head>
+    {{ $tryInTesterContext := partial "apis/1.0.0/functions/getTryInTesterContext" $currentPage -}}
+    {{ with $tryInTesterContext -}}
+      <meta data-indicator-element-id="dhcIndicator" name="dhc-aware-page" />
+      <meta name="try-in-tester-api-context" content="{{ . | jsonify }}" />
+      {{ with $currentPage.Site.Params.tryInTester -}}
+        <meta name="try-in-tester-configuration" content="{{ . | jsonify }}" />
+      {{ end -}}
+    {{ end -}}
+    {{ with $apiDefinition -}}
+      <title>{{ .info.name -}}</title>
+      <meta content="{{ .info.name -}}" property="og:title">
+    {{ end -}}
+    {{ partial "head" $currentPage -}}
+	</head>
+	<body class="api-reference">
+		<header class="header">{{ partial "header" $currentPage -}}</header>
+    {{ with $apiDefinition -}}
+      {{ $itemsByJsonPath := partial "apis/1.0.0/functions/itemsByJsonPath" $apiDefinition -}}
+      {{ $idsByJsonPath := dict -}}
+      {{ with $apiDefinition.contract -}}
+        {{ $idsByJsonPath = partial "apis/1.0.0/functions/idsByJsonPath" . -}}
+      {{ end -}}
+      {{ $apiVersionPages := where $currentPage.Site.RegularPages "Type" "eq" $currentPage.Type -}}
+      {{ $siblingsApiDefinitionsPages := partial "apis/1.0.0/functions/siblingsApiDefinitionsPages" (dict "apiVersionPages" $apiVersionPages "currentApiName" $apiDefinition.Info.Name) -}}
+      <aside class="left-panel">
+        {{ partial "apis/1.0.0/apiDefinition/leftPanel" (dict "currentPage" $currentPage "siblingsApiDefinitionsPages" $siblingsApiDefinitionsPages "resources" $currentPage.Resources "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition) -}}
+      </aside>
+      <main id="content">
+        {{ partial "apis/1.0.0/breadcrumb" $currentPage -}}
+        {{ partial "apis/1.0.0/apiDefinition/content" (dict "currentPage" $currentPage "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition) -}}
+      </main>
+    {{ else -}} {{/* The API has no "api-definition" YAML node */}}
+      <main id="content">{{ i18n "content-not-expected" -}}</main>
+    {{ end -}}
+
+		<footer class="footer">{{ partial "footer" $currentPage -}}</footer>
+
+		{{ partial "apis/1.0.0/apiDefinition/tryInTesterModal" -}}
+		{{ $js := resources.Get "js/apis.js" | minify | fingerprint -}}
+		<script type="module" src="{{ $js.Permalink }}"></script>
+		{{ $jsTryInTester := resources.Get "js/tryInTester.js" | minify | fingerprint }}
+		<script type="module" src="{{ $jsTryInTester.Permalink }}"></script>
+	</body>
+</html>

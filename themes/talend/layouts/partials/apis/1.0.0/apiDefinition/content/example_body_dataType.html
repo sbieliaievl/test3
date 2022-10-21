@@ -1,0 +1,73 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $mediaTypes := .mediaTypes -}}
+{{$examples := .examples -}}
+
+{{ range $examples }}
+	{{$example := .value -}}
+	{{ if ne (printf "%T" .value) "string" -}}
+		{{ $example = jsonify .value -}}
+	{{ end -}}
+
+	{{ with $example -}}
+		{{/*
+			Try to determine the media type of the sample and get the related language to highlight.
+			List of available languages:
+			https://gohugo.io/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages
+		*/}}
+		{{ $languageFromExample := partial "partials/apis/inline/languageFromExample" $example -}}
+		{{ with $mediaTypes -}}
+			{{ $languageFromMediaTypes := partial "partials/apis/inline/languageFromMediaTypes" $mediaTypes -}}
+			{{ $language := default "plaintext" (default $languageFromExample $languageFromMediaTypes)  -}}
+			{{ highlight $example $language "" -}}
+		{{ else -}}
+			{{ $language := default "plaintext" $languageFromExample -}}
+			{{ highlight $example $language "" -}}
+		{{ end -}}
+
+	{{ end -}}
+
+{{end -}}
+
+
+{{ define "partials/apis/inline/languageFromExample" -}}
+	{{ $example := . -}}
+	{{ if ne (printf "%T" .) "string" -}}
+		{{ $example = jsonify . -}}
+	{{ end -}}
+	{{ $scratch := newScratch -}}
+
+	{{ if and (hasPrefix $example "{") (strings.HasSuffix $example "}") -}}
+		{{ $scratch.Set "language" "json" -}}
+	{{ else if and (hasPrefix $example "[") (strings.HasSuffix $example "]") -}}
+		{{ $scratch.Set "language" "json" -}}
+	{{ else if and (hasPrefix $example "<") (strings.HasSuffix $example ">") -}}
+		{{ $scratch.Set "language" "xml" -}}
+	{{ else if (hasPrefix $example "---\n") -}}
+		{{ $scratch.Set "language" "yaml" -}}
+	{{ end -}}
+
+	{{- return $scratch.Get "language" -}}
+{{ end -}}
+
+{{ define "partials/apis/inline/languageFromMediaTypes" -}}
+	{{ $mediaTypes := . -}}
+	{{ $scratch := newScratch -}}
+
+	{{ if eq (len $mediaTypes) 1 -}}
+		{{ $exampleMediaType := index . 0 | lower -}}
+		{{ if gt ($exampleMediaType | strings.Count "json" ) 0 -}}
+			{{ $scratch.Set "language" "json" -}}
+		{{ else if gt ($exampleMediaType | strings.Count "xml" ) 0 -}}
+			{{ $scratch.Set "language" "xml" -}}
+		{{ else if gt ($exampleMediaType | strings.Count "yaml" ) 0 -}}
+			{{ $scratch.Set "language" "yaml" -}}
+		{{ else if gt ($exampleMediaType | strings.Count "yml" ) 0 -}}
+			{{ $scratch.Set "language" "yaml" -}}
+		{{ end -}}
+	{{ end -}}
+
+	{{- return $scratch.Get "language" -}}
+{{ end -}}

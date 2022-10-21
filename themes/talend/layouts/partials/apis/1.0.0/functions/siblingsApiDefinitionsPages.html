@@ -1,0 +1,20 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{/*
+	Returns the list of API version pages for a given API (defined by its name).
+*/}}
+
+{{ $apiVersionPages := .apiVersionPages -}}
+{{ $currentApiName := .currentApiName -}}
+
+{{ $siblingsApiDefinitionsPages := slice -}}
+{{ range $apiVersionPages -}}
+	{{ $apiDefinition := index .Params "api-definition" -}}
+
+	{{ if eq $apiDefinition.Info.Name $currentApiName -}}
+	    {{ $siblingsApiDefinitionsPages = $siblingsApiDefinitionsPages | append  . -}}
+	{{ end -}}
+{{ end -}}
+
+{{ return partial "apis/1.0.0/functions/sortApiVersionPagesByVersion" $siblingsApiDefinitionsPages -}}

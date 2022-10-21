@@ -1,0 +1,21 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $arrayTypes := .arrayTypes -}}
+{{ $finalType := .finalType -}}
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+
+{{ $scratch := newScratch -}}
+{{ $scratch.Add "arrayTypeLabel" slice -}}
+{{ range $arrayTypes -}}{{ $scratch.Add "arrayTypeLabel" (i18n "api-type-array-of") -}}{{ end -}}
+{{ with $finalType -}}
+    {{ if (eq .type "OBJECT") -}}
+      {{ $scratch.Add "arrayTypeLabel" (i18n "api-type-object") -}}
+    {{ else -}}
+      {{ $scratch.Add "arrayTypeLabel" (partial "apis/1.0.0/apiDefinition/content/dataType_simple" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataType" . )) -}}
+    {{ end -}}
+{{ end -}}
+{{ delimit ($scratch.Get "arrayTypeLabel") " " }}

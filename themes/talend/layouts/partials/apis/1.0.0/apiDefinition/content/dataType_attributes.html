@@ -1,0 +1,52 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $type := .type -}}
+{{ $context := .context -}}
+
+{{ $displayItemsAttributes := false -}}
+{{ with $type.minItems -}}{{ $displayItemsAttributes = true -}}{{ end -}}
+{{ with $type.maxItems -}}{{ $displayItemsAttributes = true -}}{{ end -}}
+{{ with $type.uniqueItems -}}{{ $displayItemsAttributes = true -}}{{ end -}}
+{{ if $displayItemsAttributes -}}
+<div class="{{ $context }}__parameter-attribute-example">
+	{{ with $type.minItems -}}	<span class="metadata__label">{{ i18n "api-type-parameter-min-items" -}}	</span><span class="badge">{{ . -}}</span>{{ end -}}
+	{{ with $type.maxItems -}}	<span class="metadata__label">{{ i18n "api-type-parameter-max-items" -}}	</span><span class="badge">{{ . -}}</span>{{ end -}}
+	{{ with $type.uniqueItems -}}<span class="metadata__label">{{ i18n "api-type-parameter-unique-items" -}}	</span><span class="badge">{{ . -}}</span>{{ end -}}
+</div>
+{{ end -}}
+
+{{ with $type.default -}}<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-default" -}}</span><span class="badge">{{ . -}}</span></div>{{ end -}}
+
+{{ $displayMinimumMaximumAttributes := false -}}
+{{ with $type.minimum -}}{{ $displayMinimumMaximumAttributes = true -}}{{ end -}}
+{{ with $type.maximum -}}{{ $displayMinimumMaximumAttributes = true -}}{{ end -}}
+{{ if $displayMinimumMaximumAttributes -}}
+<div class="{{ $context }}__parameter-attribute-example">
+	{{ with $type.minimum -}}<span class="metadata__label">{{ i18n "api-type-parameter-minimum" -}}</span><span class="badge">{{ . -}}</span>{{ end -}}
+	{{ with $type.maximum -}}<span class="metadata__label">{{ i18n "api-type-parameter-maximum" -}}</span><span class="badge">{{ . -}}</span>{{ end -}}
+</div>
+{{ end -}}
+
+{{ with $type.format -}}	<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-format" -}}		</span><span class="badge">{{ . -}}</span></div>{{ end -}}
+{{ with $type.enum -}}		<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-enum" -}}			</span><ul class="metadata-enum">		{{ range . -}}<li class="badge">{{ . -}}</li>{{ end -}}</ul></div>{{ end -}}
+{{ with $type.pattern -}}	<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-pattern" -}}		</span><span class="badge">{{ . -}}</span></div>{{ end -}}
+{{ with $type.fileTypes -}}	<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-file-types" -}}	</span><ul class="metadata-fileTypes">	{{ range . -}}<li class="badge">{{ . -}}</li>{{ end -}}</ul></div>{{ end -}}
+
+{{ $displayLengthAttributes := false -}}
+{{ with $type.minLength -}}{{ $displayLengthAttributes = true -}}{{ end -}}
+{{ with $type.maxLength -}}{{ $displayLengthAttributes = true -}}{{ end -}}
+{{ if $displayLengthAttributes -}}
+<div class="{{ $context }}__parameter-attribute-example">
+{{ with $type.minLength -}}<span class="metadata__label">{{ i18n "api-type-parameter-min-length" -}}</span><span class="badge">{{ . -}}</span>{{ end -}}
+{{ with $type.maxLength -}}<span class="metadata__label">{{ i18n "api-type-parameter-max-length" -}}</span><span class="badge">{{ . -}}</span>{{ end -}}
+</div>
+{{ end -}}
+{{ with $type.restriction -}}
+	{{ if eq . "READ_ONLY" -}}
+<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-restriction" -}}	</span><span class="badge">{{ i18n "api-type-parameter-restriction-response-only" -}}</span></div>
+	{{ else if eq . "WRITE_ONLY" -}}
+<div class="{{ $context }}__parameter-attribute-example"><span class="metadata__label">{{ i18n "api-type-parameter-restriction" -}}	</span><span class="badge">{{ i18n "api-type-parameter-restriction-request-only" -}}</span></div>
+	{{ end -}}
+{{ end -}}

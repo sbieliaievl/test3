@@ -1,0 +1,47 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $dataType := .dataType -}}
+
+{{ if (hasPrefix $dataType.type "#/contract/types/") -}}
+	{{ partial "apis/1.0.0/apiDefinition/content/dataType_reference" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataTypeReference" $dataType.type ) -}}
+{{ else if (eq $dataType.type "ALLOF") -}}
+	{{ i18n "api-type-all-of" -}}
+	{{ with $dataType.allOf -}}
+		{{ $allOfDataTypesLength := len . -}}
+		{{ range $index, $allOfDataType := . -}}
+			<span class="datatype-reference">
+				{{ partial "apis/1.0.0/apiDefinition/content/dataType_reference" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataTypeReference" $allOfDataType ) -}}
+			</span>
+			{{ if ne (add $index 1) $allOfDataTypesLength -}},{{ end -}}
+		{{ end -}}
+	{{ end -}}
+{{ else if (eq $dataType.type "ANYOF") -}}
+	{{ i18n "api-type-any-of" -}}
+	{{ with $dataType.anyOf -}}
+		{{ $anyOfDataTypesLength := len . -}}
+		{{ range $index, $anyOfDataType := . -}}
+			<span class="datatype-reference">
+				{{ partial "apis/1.0.0/apiDefinition/content/dataType_reference" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataTypeReference" $anyOfDataType ) -}}
+			</span>
+			{{ if ne (add $index 1) $anyOfDataTypesLength -}},{{ end -}}
+		{{ end -}}
+	{{ end -}}
+{{ else if (eq $dataType.type "ONEOF") -}}
+	{{ i18n "api-type-one-of" -}}
+	{{ with $dataType.oneOf -}}
+		{{ $oneOfDataTypesLength := len . -}}
+		{{ range $index, $oneOfDataType := . -}}
+			<span class="datatype-reference">
+				{{ partial "apis/1.0.0/apiDefinition/content/dataType_reference" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataTypeReference" $oneOfDataType ) -}}
+			</span>
+			{{ if ne (add $index 1) $oneOfDataTypesLength -}},{{ end -}}
+		{{ end -}}
+	{{ end -}}
+{{ else -}}
+	{{ $dataType.type | lower -}}
+{{ end -}}

@@ -1,0 +1,70 @@
+{{/*
+    NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $context := .context -}}
+{{ $responseStatus := .responseStatus -}}
+{{ $defaultMediaTypes := $apiDefinition.contract.mediaTypes -}}
+{{ $jsonMediaType := slice "application/json" -}}
+
+{{ with .bodies -}}
+    {{ $bodies := . -}}
+
+    {{ $onlyOneBody := eq (len $bodies) 1 -}}
+    {{ $firstBody := index $bodies 0 -}}
+
+<div class="{{ $context }}__content">
+    <span class="{{ $context }}__body">{{ i18n "api-body" -}}</span>
+    <div class="dropdown">
+    {{ $randomId := delimit (shuffle (split (md5 "aria-controls for body") "" )) "" -}}
+    {{if $onlyOneBody -}}
+        {{ with (default $jsonMediaType (default $defaultMediaTypes $firstBody.mediaTypes)) -}}{{ range . -}}<span class="{{ $context }}__mimetype">{{ . -}}</span>{{ end -}}{{ end -}}
+    {{ else -}}
+        <button type="button" class="btn btn__version js-dropdown" aria-controls="{{ $randomId }}" aria-haspopup="true" aria-expanded="false">
+        {{ with (default $defaultMediaTypes $firstBody.mediaTypes) -}}{{ range . -}}<span class="js-dropdown-text {{ $context }}__mimetype">{{. -}}</span>{{end -}}{{end -}}
+            <svg viewBox="0 0 16 16" aria-hidden="true" class="dropdown__icon"><path d="M8 13.6l-8-8L2.6 3 8 8.4 13.4 3 16 5.6z"></path></svg>
+        </button>
+        <div role="menu" class="dropdown__content" id="{{ $randomId }}" hidden>
+        {{ range $bodies -}}
+            {{ $isFirstBody := eq . $firstBody -}}
+            {{ $mediaTypesAsString := delimit (default $jsonMediaType (default $defaultMediaTypes .mediaTypes))  ", " -}}
+                <a href="#body_{{ $randomId }}{{ $mediaTypesAsString | anchorize }}" data-example role="menuitem" class="dropdown__item" tabindex="-1" {{if $isFirstBody }}hidden{{end }}>{{ $mediaTypesAsString -}}</a>
+        {{ end -}}
+        </div>
+    {{ end -}}
+    </div>
+</div>
+
+    {{ range $bodies -}}
+        {{ $isFirstBody := eq . $firstBody -}}
+        {{ $mediaTypesAsString := delimit (default $jsonMediaType (default $defaultMediaTypes .mediaTypes))  ", " -}}
+<div id="body_{{ $randomId }}{{ $mediaTypesAsString | anchorize }}" class="body__content" {{ if not $isFirstBody }}hidden{{end }}>
+    {{ with .description }}<div>{{ replace . "# " "#### " | markdownify }}</div>{{ end -}}
+    <div class="body__content">
+{{ partial "apis/1.0.0/apiDefinition/content/dataType_header" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" ( print $context "-body") "dataType" . ) -}}
+    </div>
+        {{ with .examples -}}
+            {{ $exampleId := print "bodySample_" $randomId ($mediaTypesAsString | anchorize) -}}
+            {{ $relatedMediaTypes := default $jsonMediaType (default $defaultMediaTypes $firstBody.mediaTypes) -}}
+    <div class="definition-example">
+        <div id="{{ $exampleId }}" class="definition-example__title">
+            {{ with $responseStatus -}}<span>{{ i18n "api-status" }} {{ . }}</span>{{ end -}}
+            {{ with $relatedMediaTypes -}}
+                {{ $mimeTypesLength := (len .) -}}
+                <span class="definition-example__mimetype">
+                    {{ range $index, $mimeType := . -}}
+                        {{ $mimeType -}}
+                        {{ if ne (add $index 1) $mimeTypesLength -}}, {{end -}}
+                    {{ end -}}
+                </span>
+            {{ end -}}
+        </div>
+        <div role="region" tabindex="0" class="code-container" aria-labelledby="{{ $exampleId }}">{{ partial "apis/1.0.0/apiDefinition/content/example_body_dataType" (dict "examples" . "mediaTypes" $relatedMediaTypes) -}}</div>
+    </div>
+        {{ end -}}
+</div>
+    {{ end -}}
+{{ end -}}

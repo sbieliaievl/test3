@@ -1,0 +1,80 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $securitySchemeKey := .securitySchemeKey -}}
+
+{{ with .securityScheme -}}
+      {{ $id := index $idsByJsonPath (print "#/contract/securitySchemes/" $securitySchemeKey ) -}}
+      <details class="security_scheme">
+        <summary class="security-scheme__name" id="{{ $id }}"><span class="security-scheme__name--content">{{ .name -}}</span> <svg viewBox="0 0 16 16" aria-hidden="true" class="security-scheme__name--icon"><path d="M8 13.6l-8-8L2.6 3 8 8.4 13.4 3 16 5.6z"></path></svg></summary>
+        {{ with .description -}}<div class="security-scheme-description wysiwyg">{{ replace . "# " "#### " | markdownify -}}</div>{{ end -}}
+        <table class="security-scheme__content">
+          <caption class="security-scheme__type">{{ default .type (i18n ( print "api-security-type-" .type)) -}}</caption>
+          <thead class="sr-only">
+          <tr>
+            <th scope="col">{{ i18n "api-parameter-name" -}}</th>
+            <th scope="col">{{ i18n "api-parameter-description" -}}</th>
+          </tr>
+          </thead>
+          <tbody>
+  {{ with .settings.authorizationGrants -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-grant" (len .) -}}</th>
+            <td>{{ range . -}}<span class="badge">{{ . -}}</span>{{ end -}}</td>
+          </tr>
+  {{ end -}}
+  {{ with .settings.authorizationUri -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-authorization-uri" -}}</th>
+            <td><span class="badge">{{ . -}}</span></td>
+          </tr>
+  {{ end -}}
+  {{ with .settings.accessTokenUri -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-access-token-uri" -}}</th>
+            <td><span class="badge">{{ . -}}</span></td>
+          </tr>
+  {{ end -}}
+  {{ with .settings.openIdConnectUrl -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-openid-connect-url" -}}</th>
+            <td><span class="badge">{{ . -}}</span></td>
+          </tr>
+  {{ end -}}
+  {{ with .settings.refreshUrl -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-refresh-url" -}}</th>
+            <td><span class="badge">{{ . -}}</span></td>
+          </tr>
+  {{ end -}}
+  {{ with .settings.bearerFormat -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-bearer-format" -}}</th>
+            <td><span class="badge">{{ . -}}</span></td>
+          </tr>
+  {{ end -}}
+  {{ with .settings.scopes -}}
+          <tr class="security-scheme__parameter">
+            <th scope="row">{{ i18n "api-security-scope" (len .) -}}</th>
+            <td>
+              <ul class="security-scheme__scopes">
+    {{ range $scopeKey,$scope := . -}}
+                {{ $scopeId := index $idsByJsonPath (print "#/contract/securitySchemes/" $securitySchemeKey "/settings/scopes/" $scopeKey ) -}}
+                <li><span class="badge">{{ $scope.name -}}</span> <div class="security-scheme__scope-description wysiwyg" id="{{ $scopeId }}">{{ replace $scope.description "# " "#### " | markdownify -}}</div></li>
+    {{ end -}}
+              </ul>
+            </td>
+          </tr>
+  {{ end -}}
+          </tbody>
+        </table>
+  {{ with .describedBy -}}
+    {{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "security-scheme" "type" "query-parameters" "label" (i18n "query-parameters") "parameters" .queryParameters) -}}
+    {{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "security-scheme" "type" "headers" "label" (i18n "headers") "parameters" .headers) -}}
+  {{ end -}}
+    </details>
+{{ end -}}

@@ -1,0 +1,59 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $context := .context -}}
+
+
+<ul class="{{ $context }}">
+{{/*
+.securedBy could be null even if it's existing.
+We can have the following configurations:
+	securedBy:
+	- scheme: "#/contract/securitySchemes/52bbf1d9-56bf-41d0-a84c-657d877357d3"
+or this one:
+	securedBy:
+	- null
+*/}}
+{{ with .securedBy -}}
+	{{ range . -}}
+		{{ with . -}}
+			{{ $securitySchemeId := index $idsByJsonPath .scheme -}}
+	<li class="{{ $context }}__type">
+		<a href="#{{ $securitySchemeId }}">{{ (index $itemsByJsonPath .scheme).name -}}</a>
+			{{ with .scopes -}}
+			{{ $scopesLength := len . -}}
+		<span>({{ i18n "api-security-scope" (len .) }}:
+				{{ range $index, $scopeReference := . -}}
+					<span class="security-scope-reference">
+						{{ if (hasPrefix $scopeReference "#/contract/securitySchemes/") -}}
+							{{ $scope := (index $itemsByJsonPath .) -}}
+							{{ $scopeId := (index $idsByJsonPath .) -}}
+								{{ $scope.name }}
+								<button type="button" class="btn--naked tooltip js-tooltip-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="{{ $scopeId }}">
+									<span class="sr-only">{{ $scope.name }} {{ i18n "api-item-details" }}</span>
+									<svg class="tooltip__icon" viewBox="0 0 16 16" aria-hidden="true">
+										<g><path d="M8,0 C12.418278,0 16,3.581722 16,8 C16,12.418278 12.418278,16 8,16 C3.581722,16 0,12.418278 0,8 C0,3.581722 3.581722,0 8,0 Z M7.88888889,6.11262338 C7.39796911,6.11262338 7,6.51059249 7,7.00151227 L7,11.4459567 C7,11.9368765 7.39796911,12.3348456 7.88888889,12.3348456 C8.37980867,12.3348456 8.77777778,11.9368765 8.77777778,11.4459567 L8.77777778,7.00151227 C8.77777778,6.51059249 8.37980867,6.11262338 7.88888889,6.11262338 Z M7.88888889,3.44293218 C7.39796911,3.44293218 7,3.84090129 7,4.33182107 C7,4.82274084 7.39796911,5.22070996 7.88888889,5.22070996 C8.37980867,5.22070996 8.77777778,4.82274084 8.77777778,4.33182107 C8.77777778,3.84090129 8.37980867,3.44293218 7.88888889,3.44293218 Z"></path></g>
+									</svg>
+								</button>
+						{{ else -}}
+							{{ $scopeReference }}
+						{{ end -}}
+					</span>
+					{{ if ne (add $index 1) $scopesLength -}},{{ end -}}
+				{{ end -}})
+		</span>
+			{{ end -}}
+	</li>
+		{{ else -}}
+	<li class="{{ $context }}__type">{{ i18n "api-security-no-authentication" -}}</li>
+		{{ end -}}
+	{{ else -}}
+	<li class="{{ $context }}__type">{{ i18n "api-security-no-authentication" -}}</li>
+	{{ end -}}
+{{ else -}}
+	<li class="{{ $context }}__type">{{ i18n "api-security-no-authentication" -}}</li>
+{{ end -}}
+</ul>

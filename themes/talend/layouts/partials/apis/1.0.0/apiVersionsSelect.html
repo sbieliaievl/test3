@@ -1,0 +1,28 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $siblingsApiDefinitionsPages := .siblingsApiDefinitionsPages -}}
+{{ $selectedApiDefinitionPage := .selectedApiDefinitionPage -}}
+{{ $contextCssClass := .contextCssClass -}}
+{{ $selectedApiDefinition := index $selectedApiDefinitionPage.Params "api-definition" -}}
+{{ $randomId := delimit (shuffle (split (md5 "aria-controls for apis versions") "" )) "" -}}
+
+<div class="dropdown {{ $contextCssClass }}">
+{{- $onlyOneVersion := eq (len $siblingsApiDefinitionsPages) 1 -}}
+{{ if $onlyOneVersion -}}
+  <span class="btn btn__version api__version--selected">{{ $selectedApiDefinition.info.version -}}</span>
+{{ else -}}
+  <button type="button" class="btn btn__version js-dropdown" aria-controls="versions_{{ $randomId }}" aria-haspopup="true" aria-expanded="false">
+    <span class="api__version--selected">{{ $selectedApiDefinition.info.version -}}</span>
+    <svg viewBox="0 0 16 16" aria-hidden="true" class="dropdown__icon btn__version--icon"><path d="M8 13.6l-8-8L2.6 3 8 8.4 13.4 3 16 5.6z"></path></svg>
+  </button>
+  <div id="versions_{{ $randomId }}" role="menu" class="dropdown__content" hidden>
+  {{ range $siblingsApiDefinitionsPages -}}
+    {{- $apiVersionPageApiDefinition := index .Params "api-definition" -}}
+    {{- $isCurrentVersion := eq . $selectedApiDefinitionPage -}}
+    <a href="{{ .Permalink }}" role="menuitem" class="dropdown__item{{ if $isCurrentVersion }} dropdown__item--selected{{ end }}"{{ if $isCurrentVersion }} aria-current="page"{{ end }} tabindex="-1">{{ $apiVersionPageApiDefinition.info.version -}} </a>
+  {{ end -}}
+  </div>
+{{ end -}}
+</div>

@@ -1,0 +1,38 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := .currentPage -}}
+{{ $pageResources := .pageResources -}}
+{{ $apiName := .apiName -}}
+{{ $apiVersion := .apiVersion -}}
+
+{{ $oas30Resource     := dict "resource" ($pageResources.GetMatch "*openapi30*.json") "i18n" (i18n "download-oas30") "target" (print $apiName "-" $apiVersion "-openapi30.json" | urlize) -}}
+{{ $swagger2Resource := dict "resource" ($pageResources.GetMatch "*swagger20*.json") "i18n" (i18n "download-swagger20") "target" (print $apiName "-" $apiVersion "-swagger20.json" | urlize) -}}
+
+{{ with where (slice $oas30Resource $swagger2Resource) "resource" "!=" nil -}}
+<div class="dropdown">
+  {{ if eq (len .) 1 -}}
+    {{ with index . 0 -}}
+      {{ $resource := .resource -}}
+      {{ $i18n := .i18n -}}
+      {{ $target := .target -}}
+  <button class="js-dropdown btn btn--primary" aria-controls="download" aria-haspopup="false" aria-expanded="false" type="button">
+    <a href="{{ $resource.Permalink }}" tabindex="-1" download="{{ $target }}">{{ i18n "download-title-with-parameter" -}} {{ $i18n -}}</a>
+  </button>
+    {{ end -}}
+  {{ else -}}
+  <button class="js-dropdown btn btn--primary" aria-controls="download" aria-haspopup="true" aria-expanded="false" type="button">
+    {{ i18n "download-title" -}}
+    <svg viewBox="0 0 16 16" aria-hidden="true" class="dropdown__icon"><path d="M8 13.6l-8-8L2.6 3 8 8.4 13.4 3 16 5.6z"></path></svg>
+  </button>
+  <div id="download" role="menu" class="dropdown__content" hidden>
+    {{ range . -}}
+      {{ $resource := .resource -}}
+      {{ $i18n := .i18n -}}
+      {{ $target := .target -}}
+    <a href="{{ $resource.Permalink }}" role="menuitem" class="dropdown__item" tabindex="-1" download="{{ $target }}">{{ $i18n -}}</a>
+    {{ end -}}
+  </div>
+  {{ end -}}
+</div>
+{{ end -}}

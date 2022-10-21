@@ -1,0 +1,19 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $dataType := .dataType -}}
+{{ $context := .context -}}
+
+{{ if (hasPrefix $dataType.type "#/contract/types/") -}}
+	{{ partial "apis/1.0.0/apiDefinition/content/dataType_reference" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataTypeReference" $dataType.type ) -}}
+{{ else if (eq $dataType.type "OBJECT") -}}
+  {{ partial "apis/1.0.0/apiDefinition/content/dataType_object" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" $context "dataType" $dataType) -}}
+{{ else if (eq $dataType.type "ARRAY") -}}
+  {{ partial "apis/1.0.0/apiDefinition/content/dataType_array" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" $context "dataType" $dataType) -}}
+{{ else -}}
+  {{ partial "apis/1.0.0/apiDefinition/content/dataType_simple" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" $context "dataType" $dataType ) -}}
+{{ end -}}

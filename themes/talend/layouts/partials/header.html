@@ -1,0 +1,25 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{/*
+  Content of the Web site's header.
+  It currently displays a link to the home page decorated with the brand logo, and the entries of the "main" menu.
+  see https://gohugo.io/content-management/menus/
+*/}}
+{{ $currentPage := . -}}
+<ul class="header__menu">
+  <li class="header__item">
+    <a class="header__link header__brand {{ if .IsHome }} header__page--active{{ end }}" href="{{ .Site.Home.Permalink }}" {{ if .IsHome }} aria-current="page"{{ end }}>
+      <span class="sr-only">{{ i18n "breadcrumb-home" -}}</span>
+      <span>{{ .Site.Title -}}</span>
+    </a>
+  </li>
+{{ range $menuEntry := .Site.Menus.main.ByWeight -}}
+  <li class="header__item">
+    {{ $isMenuEntryPageTheCurrentPage := eq $menuEntry.Page $currentPage -}}
+    {{ $isMenuEntryPageASectionAndCurrentPageAChild := and $menuEntry.Page.IsSection (eq $currentPage.Type $menuEntry.Page.Type) -}}
+    <a href="{{ default $menuEntry.Page.Permalink $menuEntry.URL }}" class="header__link{{ if $isMenuEntryPageTheCurrentPage }} header__page--active{{ else if $isMenuEntryPageASectionAndCurrentPageAChild }} header__section--active{{ end }}"  {{ if $isMenuEntryPageTheCurrentPage }} aria-current="page"{{ end }}>{{ default $menuEntry.Page.Title $menuEntry.Name -}}</a>
+  </li>
+{{ end -}}
+</ul>

@@ -1,0 +1,22 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $context := .context -}}
+{{ $typedParameter := .typedParameter -}}
+
+{{ $randomId := delimit (shuffle (split (md5 "aria-describedBy for Object property") "" )) "" -}}
+<tr class="{{ $context }}__parameter">
+  <th class="{{ $context }}__parameter-type-label" scope="row" aria-describedby="{{ $randomId }}">{{ $typedParameter.name -}}</th>
+  <td class="wysiwyg">{{ replace $typedParameter.description "# " "#### " | markdownify -}}</td>
+  <td class="{{ $context }}__parameter-type"><span class="parameter-type">{{ i18n "api-type-object" -}}</span>{{ if $typedParameter.required -}}<span class="badge badge--warn">{{ i18n "api-parameter-required" -}}</span>{{else -}}<span class="badge">{{ i18n "api-parameter-optional" -}}</span>{{ end -}}</td>
+  <td class="{{ $context }}__parameter-attributes-examples">{{ partial "apis/1.0.0/apiDefinition/content/dataType_attributes_with_examples" (dict "typedParameter" $typedParameter "context" $context) -}}</td>
+</tr>
+<tr class="{{ $context }}__parameter--subtype">
+  <td colspan="4">
+{{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" $context "type" "properties" "parameters" $typedParameter.properties "id" $randomId) -}}
+  </td>
+</tr>

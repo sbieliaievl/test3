@@ -1,0 +1,13 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := .currentPage -}}
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $resource := .resource -}}
+
+{{ range $operationId,$operation := .resource.operations -}}
+	{{ $anchorId := index $idsByJsonPath (print "#/contract/operations/" $operationId ) -}}
+	{{ partial "apis/1.0.0/apiDefinition/content/operation" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "operation" $operation "path" $resource.path "pathVariables" $resource.pathVariables "resourceSecuredBy" $resource.securedBy "anchorId" $anchorId "operationId" $operationId "apiDefinition" $apiDefinition "currentPage" $currentPage) -}}
+{{ end -}}

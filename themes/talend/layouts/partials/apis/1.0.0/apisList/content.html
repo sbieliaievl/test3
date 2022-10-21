@@ -1,0 +1,116 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $site := .Site -}}
+{{ $section := .Type -}}
+{{ $apiPages := where $site.RegularPages "Type" "eq" $section -}}
+
+{{- with (index $site.Params "api-list") -}}
+    {{ $apiVersionPagesByRootDirectory := partial "partials/apis/inline/apiVersionPagesByRootDirectory" $apiPages -}}
+    {{/* Display the APIs linked to the "default" domain at the top of the API list */}}
+    {{- range $indexDomain,$apiDomains := .  -}}
+        {{- range $domainName,$apiRootDirectoryNames := $apiDomains -}}
+            {{- if eq $domainName "default" -}}
+                <section class="domain">
+                    {{ $defaultDomainApiPagesList := partial "partials/apis/inline/apiVersionPageListForDomain" (dict "apiVersionPagesByRootDirectory" $apiVersionPagesByRootDirectory "apiRootDirectoryNames" $apiRootDirectoryNames ) -}}
+                    {{- partial "partials/apis/inline/apiCards" (dict "apiPagesList" $defaultDomainApiPagesList "sortApiNames" false "indexDomain" $indexDomain) -}}
+                </section>
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+    {{- range $indexDomain,$apiDomains := . -}}
+        {{/* Display all the other domains */}}
+        {{- range $domainName,$apiRootDirectoryNames := $apiDomains -}}
+                {{- if ne $domainName "default" -}}
+                    <section class="domain">
+                        <h2 class="domain__title">{{ i18n $domainName | default $domainName -}}</h2>
+                        {{ $domainApiPagesList := partial "partials/apis/inline/apiVersionPageListForDomain" (dict "apiVersionPagesByRootDirectory" $apiVersionPagesByRootDirectory "apiRootDirectoryNames" $apiRootDirectoryNames ) -}}
+                        {{- partial "partials/apis/inline/apiCards" (dict "apiPagesList" $domainApiPagesList "sortApiNames" false "domainName" $domainName "indexDomain" $indexDomain) -}}
+                    </section>
+                {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- else -}}
+    {{- partial "partials/apis/inline/apiCards" (dict "apiPagesList" $apiPages "sortApiNames" true) -}}
+{{- end -}}
+
+
+{{ define "partials/apis/inline/apiCards" -}}
+    {{ $apiPagesList := .apiPagesList -}}
+    {{ $sortApiNames := .sortApiNames -}}
+    {{ $domainName := .domainName -}}
+    {{ $indexDomain := .indexDomain -}}
+
+    {{ $apiNames := slice -}}
+    {{ $apiVersionPagesByApiNames := newScratch -}}
+    {{ range $apiPagesList -}}
+        {{ $apiDefinition := index .Params "api-definition" -}}
+        {{ $apiName := $apiDefinition.info.name -}}
+
+        {{ $apiNames = ( $apiNames | append $apiName) | uniq -}}
+        {{ if eq ($apiVersionPagesByApiNames.Get $apiName) nil -}}
+            {{ $apiVersionPagesByApiNames.Set $apiName (slice . ) -}}
+        {{ else -}}
+            {{ $apiVersionPagesByApiNames.Set $apiName ( $apiVersionPagesByApiNames.Get $apiName | append  . ) -}}
+        {{ end -}}
+    {{ end -}}
+
+    {{- if $sortApiNames -}}
+        {{ $apiNames = sort $apiNames -}}
+    {{- end -}}
+
+    <div class="api-container">
+        {{ range $key,$apiName := $apiNames -}}
+            {{ $apiVersions := partial "apis/1.0.0/functions/sortApiVersionPagesByVersion" ($apiVersionPagesByApiNames.Get .) -}}
+            {{- $lastVersionPage :=  index (last 1 $apiVersions) 0 -}}
+            {{- $lastVersionPageApiDefinition := index $lastVersionPage.Params "api-definition" -}}
+            <article class="api">
+                {{ if $domainName -}}
+                    <h3 class="api__title"><a href="{{ $lastVersionPage.Permalink }}" class="api__link">{{ $apiName -}}</a></h3>
+                {{ else -}}
+                    <h2 class="api__title"><a href="{{ $lastVersionPage.Permalink }}" class="api__link">{{ $apiName -}}</a></h2>
+                {{ end -}}
+
+                {{ partial "apis/1.0.0/apiVersionsSelect" (dict "siblingsApiDefinitionsPages" $apiVersions "selectedApiDefinitionPage" $lastVersionPage "contextCssClass" "api__list") -}}
+                <div id="tooltip_api__description_{{$indexDomain}}_{{$key}}" class="api__description wysiwyg js-tooltip-content">{{ with $lastVersionPageApiDefinition.info.description -}}{{ replace . "# " "### " | markdownify -}}{{ end -}}</div>
+                <div class="api__description_expanded_container">
+                    <button type="button" class="btn--description-expanded tooltip js-tooltip-trigger js-api-description-expanded invisible" aria-expanded="false" aria-haspopup="true" aria-controls="tooltip_api__description_{{$indexDomain}}_{{$key}}">
+                        <svg class="tooltip__icon" viewBox="0 0 16 16" aria-hidden="true"><g><path d="M8,0 C12.418278,0 16,3.581722 16,8 C16,12.418278 12.418278,16 8,16 C3.581722,16 0,12.418278 0,8 C0,3.581722 3.581722,0 8,0 Z M7.88888889,6.11262338 C7.39796911,6.11262338 7,6.51059249 7,7.00151227 L7,11.4459567 C7,11.9368765 7.39796911,12.3348456 7.88888889,12.3348456 C8.37980867,12.3348456 8.77777778,11.9368765 8.77777778,11.4459567 L8.77777778,7.00151227 C8.77777778,6.51059249 8.37980867,6.11262338 7.88888889,6.11262338 Z M7.88888889,3.44293218 C7.39796911,3.44293218 7,3.84090129 7,4.33182107 C7,4.82274084 7.39796911,5.22070996 7.88888889,5.22070996 C8.37980867,5.22070996 8.77777778,4.82274084 8.77777778,4.33182107 C8.77777778,3.84090129 8.37980867,3.44293218 7.88888889,3.44293218 Z"></path></g></svg>
+                    </button>
+                </div>
+            </article>
+        {{ end -}}
+    </div>
+{{ end -}}
+
+{{ define "partials/apis/inline/apiVersionPageListForDomain" -}}
+    {{ $apiVersionPagesByRootDirectory := .apiVersionPagesByRootDirectory -}}
+    {{ $apiRootDirectoryNames := .apiRootDirectoryNames -}}
+
+    {{ $apiPages := slice -}}
+    {{- range $apiRootDirectoryName := $apiRootDirectoryNames -}}
+        {{ with $apiVersionPagesByRootDirectory.Get $apiRootDirectoryName -}}
+            {{ $apiPages = $apiPages | append . -}}
+        {{ end -}}
+    {{- end -}}
+    {{ return $apiPages -}}
+{{ end -}}
+
+{{ define "partials/apis/inline/apiVersionPagesByRootDirectory" -}}
+    {{ $apiPages := . -}}
+
+    {{ $apiVersionPagesByRootDirectory := newScratch -}}
+    {{ range $apiPages -}}
+        {{ $fullParentDirectoryRelativePath := (path.Split .File.Dir).Dir -}} {{/* "path.Split" normalize the "/" and "\" file separators */}}
+        {{ $rootDirectory := index (split $fullParentDirectoryRelativePath "/") 1 -}} {{/* Take care the first segment contains the section name e.g. "apis" */}}
+
+        {{ if eq ($apiVersionPagesByRootDirectory.Get $rootDirectory) nil -}}
+            {{ $apiVersionPagesByRootDirectory.Set $rootDirectory (slice . ) -}}
+        {{ else -}}
+            {{ $apiVersionPagesByRootDirectory.Set $rootDirectory ( $apiVersionPagesByRootDirectory.Get $rootDirectory | append  . ) -}}
+        {{ end -}}
+    {{ end -}}
+
+    {{ return $apiVersionPagesByRootDirectory -}}
+{{ end -}}

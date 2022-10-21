@@ -1,0 +1,43 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $info := . -}}
+
+
+{{ $hasContactInfo := false -}}
+{{ with $info.contact -}}
+  {{ with .name   -}}{{ $hasContactInfo = true -}}{{ end -}}
+  {{ with .url    -}}{{ $hasContactInfo = true -}}{{ end -}}
+  {{ with .email  -}}{{ $hasContactInfo = true -}}{{ end -}}
+{{ end -}}
+{{ $hasLicenseInfo := false -}}
+{{ with $info.license -}}
+  {{ with .name   -}}{{ $hasLicenseInfo = true -}}{{ end -}}
+  {{ with .url    -}}{{ $hasLicenseInfo = true -}}{{ end -}}
+{{ end -}}
+{{ $hasTermsOfServiceInfo := or (isset $info "termsofservice") (ne $info.termsofservice "") -}}
+
+{{ if or $hasContactInfo $hasLicenseInfo $hasTermsOfServiceInfo -}}
+<dl class="definition contact">
+  {{ if $hasContactInfo -}}
+    {{ with $info.contact -}}
+      {{ $hasNameOrUrl := or (isset $info.contact "url") (isset $info.contact "name") -}}
+      {{ $hasEmail := (isset $info.contact "email") -}}
+  <dt class="contact__term">{{ i18n "api-contact" -}}</dt>
+  <dd class="contact__definition"><span>{{ with .url -}}<a href="{{ . }}">{{ end -}}{{ default .url .name -}}{{ if .url -}}</a>{{ end -}}{{if and $hasNameOrUrl $hasEmail -}}, {{ end -}}{{ with .email -}}<a href="mailto:{{ . }}">{{ . -}}</a>{{end -}}</span></dd>
+    {{ end -}}
+  {{ end -}}
+
+  {{ if $hasLicenseInfo -}}
+    {{ with $info.license -}}
+      <dt class="contact__term">{{ i18n "api-license" -}}</dt>
+      <dd class="contact__definition">{{ with .url -}}<a href="{{ . }}">{{ end -}}{{ default .url .name -}}{{ if .url -}}</a>{{ end -}}</dd>
+    {{ end -}}
+  {{ end -}}
+  {{ with $info.termsOfService -}}
+      <dt class="contact__term">{{ i18n "api-terms-of-service" -}}</dt>
+      <dd class="contact__definition">{{ . -}}</dd>
+  {{ end -}}
+</dl>
+{{ end -}}

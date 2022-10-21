@@ -1,0 +1,20 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $status := .status -}}
+{{ $isDefaultResponse := .isDefaultResponse -}}
+
+{{ with .response -}}
+<div class="response">
+	<details class="response__detail" {{ with $isDefaultResponse }}open=""{{ end -}}>
+		<summary class="response__type"><span><span class="badge badge--{{substr $status 0 1 }}xx">{{ $status -}}</span>{{ i18n "api-status" }} {{ $status }}</span><svg viewBox="0 0 16 16" aria-hidden="true" class="response__type--icon"><path d="M8 13.6l-8-8L2.6 3 8 8.4 13.4 3 16 5.6z"></path></svg></summary>
+		{{ with .description -}}<div class="response-description wysiwyg">{{ replace . "# " "#### " | markdownify -}}</div>{{ end -}}
+		{{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "response" "type" "headers" "label" (i18n "headers") "parameters" .headers) -}}
+		{{ partial "apis/1.0.0/apiDefinition/content/bodies" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "bodies" .bodies "context" "response" "responseStatus"  $status ) -}}
+	</details>
+</div>
+{{ end -}}

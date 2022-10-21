@@ -1,0 +1,81 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{/*
+	Generate human readable ids for:
+		- sections
+		- texts
+		- operations
+		- types
+		- security schemes
+		- scopes
+	It also handles collisions of ids (with a trailing counter).
+*/}}
+
+{{ $contract := . -}}
+
+{{ $scratch := newScratch -}}
+{{ range $key,$section := $contract.sections -}}
+	{{ $anchor := partial "apis/1.0.0/inline/getSanitizedAnchor" (print "section_" $section.name) -}}
+	{{ $scratch.Add $anchor 1 -}}
+	{{ if gt ($scratch.Get $anchor) 1 -}}
+		{{ $anchor = print $anchor "_" ($scratch.Get $anchor) -}}
+	{{ end -}}
+	{{ $scratch.SetInMap "idsByJsonPath" (print "#/contract/sections/" $key) $anchor -}}
+{{ end -}}
+
+{{ range $key,$text := $contract.texts -}}
+	{{ $anchor := partial "apis/1.0.0/inline/getSanitizedAnchor" (print "text_" $text.title) -}}
+	{{ $scratch.Add $anchor 1 -}}
+	{{ if gt ($scratch.Get $anchor) 1 -}}
+		{{ $anchor = print $anchor "_" ($scratch.Get $anchor) -}}
+	{{ end -}}
+	{{ $scratch.SetInMap "idsByJsonPath" (print "#/contract/texts/" $key) $anchor -}}
+{{ end -}}
+
+{{ range $key,$type := $contract.types -}}
+	{{ $anchor := partial "apis/1.0.0/inline/getSanitizedAnchor" (print "type_" $type.name) -}}
+	{{ $scratch.Add $anchor 1 -}}
+	{{ if gt ($scratch.Get $anchor) 1 -}}
+		{{ $anchor = print $anchor "_" ($scratch.Get $anchor) -}}
+	{{ end -}}
+	{{ $scratch.SetInMap "idsByJsonPath" (print "#/contract/types/" $key) $anchor -}}
+{{ end -}}
+
+{{ range $securitySchemeKey,$securityScheme := $contract.securitySchemes -}}
+	{{ $anchor := partial "apis/1.0.0/inline/getSanitizedAnchor" (print "securityScheme_" $securityScheme.name) -}}
+	{{ $scratch.Add $anchor 1 -}}
+	{{ if gt ($scratch.Get $anchor) 1 -}}
+		{{ $anchor = print $anchor "_" ($scratch.Get $anchor) -}}
+	{{ end -}}
+	{{ $scratch.SetInMap "idsByJsonPath" (print "#/contract/securitySchemes/" $securitySchemeKey) $anchor -}}
+
+	{{ with $securityScheme.settings.scopes -}}
+		{{ range $scopeKey,$scope := . -}}
+			{{ $scopeAnchor := partial "apis/1.0.0/inline/getSanitizedAnchor" (print "securitySchemeScope_" $scope.name) -}}
+			{{ $scratch.Add $scopeAnchor 1 -}}
+			{{ if gt ($scratch.Get $scopeAnchor) 1 -}}
+				{{ $scopeAnchor = print $scopeAnchor "_" ($scratch.Get $scopeAnchor) -}}
+			{{ end -}}
+			{{ $scratch.SetInMap "idsByJsonPath" (print "#/contract/securitySchemes/" $securitySchemeKey "/settings/scopes/" $scopeKey) $scopeAnchor -}}
+		{{ end -}}
+	{{ end -}}
+
+{{ end -}}
+
+{{ range $contract.resources -}}
+	{{ range $key,$operation := .operations -}}
+		{{ $anchor := partial "apis/1.0.0/inline/getSanitizedAnchor" (print "operation_" $operation.name) -}}
+		{{ $scratch.Add $anchor 1 -}}
+		{{ if gt ($scratch.Get $anchor) 1 -}}
+			{{ $anchor = print $anchor "_" ($scratch.Get $anchor) -}}
+		{{ end -}}
+		{{ $scratch.SetInMap "idsByJsonPath" (print "#/contract/operations/" $key) $anchor -}}
+	{{ end -}}
+{{ end -}}
+
+{{ return $scratch.Get "idsByJsonPath" -}}
+
+{{ define "partials/apis/1.0.0/inline/getSanitizedAnchor" -}}
+    {{ return anchorize (urlize .) -}}
+{{ end -}}

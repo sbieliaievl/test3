@@ -1,0 +1,80 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := .currentPage -}}
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $resourcePath := .path -}}
+{{ $resourcePathVariables := .pathVariables -}}
+{{ $resourceSecuredBy := .resourceSecuredBy -}}
+{{ $anchorId := .anchorId -}}
+{{ $operationId := .operationId -}}
+
+{{ with .operation -}}
+<section id="{{ $anchorId }}_anchor" class="operation" aria-labelledby="{{ $anchorId }}">
+	<div class="operation__content">
+        <h3 id="{{ $anchorId }}">{{ .name -}}</h3>
+        <span class="operation--{{ lower .method }} operation--default">{{ .method -}}</span> <span class="operation__url">{{ $resourcePath -}}</span>
+	{{ with .description -}}<div class="operation__description wysiwyg">{{ replace . "# " "#### " | markdownify -}}</div>{{ end -}}
+	{{ with ( default $resourceSecuredBy .securedBy) -}}
+		<div class="definition__security definition">
+			<h4>{{ i18n "api-security" -}}</h4>
+	      	<div>
+			{{ partial "apis/1.0.0/apiDefinition/content/securedBy" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "securedBy" . "context" "operation-security") -}}
+			</div>
+	    </div>
+	{{ end -}}
+	{{ $hasRequestParameters := false -}}
+	{{ with $resourcePathVariables -}}{{ $hasRequestParameters = true -}}{{ end -}}
+	{{ with .queryParameters -}}{{ $hasRequestParameters = true -}}{{ end -}}
+	{{ with .headers -}}{{ $hasRequestParameters = true -}}{{ end -}}
+	{{ with .bodies -}}{{ $hasRequestParameters = true -}}{{ end -}}
+	{{ if $hasRequestParameters -}}
+	    <div class="definition__content definition">
+			<div>
+				<h4>{{ i18n "api-request" -}}</h4>
+		{{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "request" "type" "path-variables" "label" (i18n "path-variables") "parameters" $resourcePathVariables) -}}
+		{{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "request" "type" "query-parameters" "label" (i18n "query-parameters") "parameters" .queryParameters) -}}
+		{{ partial "apis/1.0.0/apiDefinition/content/typedParameters" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "request" "type" "headers" "label" (i18n "headers") "parameters" .headers) -}}
+			</div>
+		{{ partial "apis/1.0.0/apiDefinition/content/bodies" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "bodies" .bodies "context" "request") -}}
+    	</div>
+	{{ end -}}
+
+	{{ with .responses -}}
+		{{ $responses := . -}}
+		<div class="definition__content definition">
+			<h4>{{ i18n "api-response" -}}</h4>
+		{{ $scratch := newScratch -}} {{/* used to sort by status */}}
+		{{ range $responses -}}
+			{{ $scratch.SetInMap "responsesByStatus" .status . -}}
+		{{ end -}}
+
+		{{ $defaultResponseHasBeenFound := false -}}
+		{{ range $scratch.Get "responsesByStatus" -}}
+			{{ $status := .status  -}}
+			{{ $reference := default "" .reference  -}}
+			{{ with cond (hasPrefix $reference "#/components/") (index $itemsByJsonPath $reference) . -}}{{/* Solve potential referenced component */}}
+				{{ $response := . -}}
+				{{ if $defaultResponseHasBeenFound -}}
+					{{ partial "apis/1.0.0/apiDefinition/content/response" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "response" $response "status" $status "isDefaultResponse" false) -}}
+				{{ else if eq (substr .status 0 1) "2" -}} {{/* the first 2** response available is considered as the default one */}}
+					{{ partial "apis/1.0.0/apiDefinition/content/response" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "response" $response "status" $status "isDefaultResponse" true) -}}
+					{{ $defaultResponseHasBeenFound = true -}}
+				{{ else -}}
+					{{ partial "apis/1.0.0/apiDefinition/content/response" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "response" $response "status" $status "isDefaultResponse" false) -}}
+				{{ end -}}
+			{{ end -}}
+		{{ end -}}
+		</div>
+	{{ end -}}
+	</div>
+	<div class="operation__content-info operation__content-info--odd">
+		{{ $pathTryInTesterPartial := partial "utils/findPartialPathForCurrentLayout" (dict "currentPage" $currentPage "partialName" "apiDefinition/tryInTester.html") -}}
+		{{ with $pathTryInTesterPartial -}}
+			{{ partial . (dict "operationId" $operationId "className" "js-operation-try-in-tester" "apiDefinition" $apiDefinition "currentPage" $currentPage) -}}
+		{{ end -}}
+	</div>
+</section>
+{{ end -}}

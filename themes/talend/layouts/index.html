@@ -1,0 +1,23 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := . -}}
+{{ $shouldDisplayApisList := eq (index $currentPage.Params "api-list") true -}}
+<!doctype html>
+<html lang="{{ .Site.Language.Lang }}">
+	<head>{{ partial "head" $currentPage -}}</head>
+	<body class="home">{{/* Check the grid layout in case you would like to display your own content. */}}
+		<header class="header">{{ partial "header" $currentPage -}}</header>
+		<main id="content">
+			{{- partial "breadcrumb" $currentPage -}}
+			{{ if $shouldDisplayApisList -}}
+				{{ with .Site.GetPage "/apis/" -}}{{- partial "apis/1.0.0/apisList/content" . -}}{{ end -}}
+			{{ else -}}
+				{{ $currentPage.Content -}}
+			{{ end -}}
+		</main>
+		<footer class="footer">{{ partial "footer" . -}}</footer>
+		{{ $js := resources.Get "js/apis.js"  | minify | fingerprint  }}{{/* Used to display the list of APIs */}}
+		<script async src="{{ $js.Permalink }}"></script>
+	</body>
+</html>

@@ -1,0 +1,49 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := .currentPage -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $operationId := .operationId -}}
+{{ $className := .className -}}
+{{ $pathGetPublishedEndpointsPartial := partial "utils/findPartialPathForCurrentLayout" (dict "currentPage" $currentPage "partialName" "functions/getPublishedEndpoints.html") -}}
+{{ $publishedEndpoints := partial $pathGetPublishedEndpointsPartial (dict "apiDefinition" $apiDefinition) -}}
+{{ $lengthPublishedEndpoints := (len $publishedEndpoints) -}}
+
+<div class="try-in-tester js-try-in-tester">
+  <button class="try-in-tester__action js-try-in-tester--action btn btn--primary {{$className}} {{if gt $lengthPublishedEndpoints 1 -}} try-in-tester__action--with-dropdown {{ end -}}"
+          {{ with $operationId -}} data-operation-id="{{ . }}" {{ end -}}
+          type="button">
+    {{ i18n "try-in-api-tester" }}
+    {{ if gt $lengthPublishedEndpoints 1 -}}({{$lengthPublishedEndpoints}}){{ end -}}
+  </button>
+  {{ if gt $lengthPublishedEndpoints 1 -}}
+    <button title="{{ i18n "select-your-endpoint" -}}" class="try-in-tester__dropdown js-dropdown btn btn--primary"
+    aria-controls="endpoints-list"
+    aria-label="{{ i18n "select-your-endpoint" -}}"
+    aria-haspopup="true"
+    aria-expanded="false"
+    type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true" class="dropdown__icon"><path d="M8 13.6l-8-8L2.6 3 8 8.4 13.4 3 16 5.6z"></path></svg>
+    </button>
+    <div id="endpoints-list"
+         role="menu"
+         class="dropdown__content dropdown__content--endpoints {{ if $operationId -}} dropdown__content--endpoints-operation {{ end -}}"
+         hidden>
+      {{ range $publishedEndpoint := $publishedEndpoints -}}
+        <button title="{{$publishedEndpoint.url}}"
+                data-endpoint-url="{{$publishedEndpoint.url}}"
+                role="menuitem"
+                class="js-try-in-tester-endpoint dropdown__item dropdown__item--endpoints btn--naked"
+                type="button">
+          {{with $publishedEndpoint.url -}}<span class="text--ellipsis dropdown__item--endpoints-url">{{ . }}</span>{{ end -}}
+        </button>
+      {{ end -}}
+      <a role="menuitem"
+         class="dropdown__item dropdown__item--endpoints-link-description"
+         href="#endpoints">
+        {{ i18n "go-endpoint-descriptions" -}}
+      </a>
+    </div>
+  {{ end -}}
+</div>
+

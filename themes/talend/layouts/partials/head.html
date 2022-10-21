@@ -1,0 +1,49 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{/*
+	Content of any HTML page head metadata.
+	Create a "/static/img/brand-logo.svg" file in the Hugo project (not in the theme) in order to specify your own favicon.
+*/}}
+<meta charset="utf-8">
+{{ with .Title -}}<title>{{ . }}</title>{{ end -}}
+{{ with .Description -}}<meta name="description" content="{{ . }}" />{{ end -}}
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+{{ with .Title -}}<meta property="og:title" content="{{ . }}" />{{ end -}}
+
+{{/*
+  Check the open graph meta tags documentation:
+  https://developers.facebook.com/docs/sharing/webmasters?#markup
+*/}}
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ .Permalink }}">
+{{/*
+  Put your own opengraph icon in "/assets/img/opengraph-logo.png".
+*/}}
+{{ with resources.Get "/img/opengraph-logo.png" -}}
+<meta property="og:image" content="{{ (fingerprint .).Permalink }}" />
+<meta property="og:image:width" content="604" />
+<meta property="og:image:height" content="154" />
+{{ end -}}
+
+{{/*
+  Put your own logo at this location: "/static/img/brand-logo.png"
+  Adapt also the "sizes" attribute.
+*/}}
+<link rel="icon" href="/img/brand-logo.png" sizes="196x196" />
+<link rel="apple-touch-icon" href="/img/brand-logo.png" sizes="196x196" />
+
+{{/*
+	CSS files are gathered in a single file whose name is somehow randomized.
+	see https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+*/}}
+{{- $CSS :=  resources.Match "css/*.css" | resources.Concat "css/full.css" | minify | fingerprint -}}
+<link rel="stylesheet" href="{{ $CSS.RelPermalink }}" media="all" />
+
+{{/*
+  This color is the value of the "--secondary-color" CSS variable.
+  Check the "assets/css/02_variables.css" file
+*/}}
+<meta name="theme-color" content="#fafafa" />
