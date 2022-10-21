@@ -1,0 +1,24 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{/*
+    Generates the breadcrumb for the current page of the APIs section.
+    We distinguishes:
+     - the APIs list page, which label is the translation of the key "apis-breadcrumb-api-list"
+     - an API page, which label is the name of the API.
+*/}}
+{{ $currentPage := . -}}
+
+<nav class="breadcrumb" aria-label="{{ i18n "breadcrumb" }}">
+	<ol class="breadcrumb__list">
+		<li class="breadcrumb__item"><a href="{{ .Site.Home.Permalink }}" class="breadcrumb__element">{{ i18n "breadcrumb-home" -}}</a></li>
+    <li class="breadcrumb__item"><span class="breadcrumb__separator" aria-hidden="true"> / </span><a {{ if .IsSection }}aria-current="page" {{end}}href="{{ cond .IsSection .Permalink .Parent.Permalink }}" class="breadcrumb__element">{{ i18n "apis-breadcrumb-api-list" -}}</a></li>
+{{ if not .IsSection -}} {{/* This is an API page */}}
+  {{ $label := .Title }}
+  {{ with (index .Params "api-definition") -}}
+    {{ $label = .info.name -}}
+  {{ end -}}
+    <li class="breadcrumb__item"><span class="breadcrumb__separator" aria-hidden="true"> / </span><a aria-current="page" href="{{ .Permalink }}" class="breadcrumb__element">{{ $label -}}</a></li>
+{{ end -}}
+	</ol>
+</nav>

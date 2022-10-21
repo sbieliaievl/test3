@@ -1,0 +1,9 @@
+# NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+
+# This file allows to map the layout defined in the front matter with the layout version.
+# Keep in mind that the order is important.
+# The latest version should be on the top.
+- layout: apiDefinition_1.1.0
+  version: 1.1.0
+- layout: apiDefinition_1.0.0
+  version: 1.0.0

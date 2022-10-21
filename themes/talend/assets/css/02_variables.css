@@ -1,0 +1,64 @@
+/*
+ * NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+ */
+
+:root {
+  /* Color used for must user interface component, such as button, border, link, dropdown, tooltip, ... */
+  --primary-color: #0675c1;
+  /* Color used mostly on background on body and some components */
+  --secondary-color: #FAFAFA;
+
+  /* Customize the header background */
+  --header-background: #19426C;
+  /* As the background is a variable, we must do the same on the color so that it's possible to meet the minimum contrast ratio */
+  --header-color: #fff;
+ /* Add your brand logo URL so that it appears on the home link in the header */
+  --header-brand-logo: url("/img/brand-logo.png");
+
+  /* Personalize the footer background color */
+  --footer-background-color: var(--secondary-color);
+  /* As the background is a variable, we must do the same on the color so that it's possible to meet the minimum contrast ratio */
+  --footer-color: #4A4A4A;
+
+  /* Every following variables are here to illustrate HTTP methods */
+  --get-request-color: #fff;
+  --get-request-background-color: #4D834C;
+  --head-request-color: #fff;
+  --head-request-background-color: #4D834C;
+  --options-request-color: #fff;
+  --options-request-background-color: #4D834C;
+  --post-request-color: #000;
+  --post-request-background-color: #F3B621;
+  --patch-request-color: #000;
+  --patch-request-background-color: #F3B621;
+  --put-request-color: #fff;
+  --put-request-background-color: #3477CD;
+  --delete-request-color: #fff;
+  --delete-request-background-color: #D14454;
+
+  /* Color used for badge, such as optioanl/required attribute, exemple, and so on */
+  --color--neutral: #6d6d6d;
+  --color--neutral-bg: #F0F0F0;
+  --color--warn: #93521d;
+  --color--warn-bg: #F8DAC1;
+  --color--error: #b1181e;
+  --color--error-bg: rgba(233,96,101,.2);
+  --color--redirect: #022a45;
+  --color--redirect-bg: rgba(6,117,193,.2);
+  --color--success: #427212;
+  --color--success-bg: #D9EBC6;
+
+  /* Define your own font and change the different font size accordingly */
+  --font-family-sans-serif: 'Source Sans Pro';
+  --font-size-xxs: .75rem;
+  --font-size-xs: .875rem;
+  --font-size-sm: 1rem;
+  --font-size-md: 1.125rem;
+  --font-size-lg: 1.25rem;
+
+  --root-font-size: var(--font-size-xs);
+
+  --main-size-container: 67.14rem;
+  --custom-page-container: var(--main-size-container);
+  --api-page-container: var(--main-size-container);
+}

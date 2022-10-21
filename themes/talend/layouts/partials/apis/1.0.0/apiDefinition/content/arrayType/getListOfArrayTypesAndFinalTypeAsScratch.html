@@ -1,0 +1,35 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $firstArrayOfType := .dataType -}}
+
+{{ $listOfTypes := partial "partials/apis/inline/functions/recursiveArrayTypesAsListOfTypes" (dict "itemsByJsonPath" $itemsByJsonPath "dataType" $firstArrayOfType.items "listOfTypes" (slice $firstArrayOfType)) -}}
+{{ $lenTypes := len $listOfTypes -}}
+
+{{ $scratch := newScratch -}}
+{{ if eq $lenTypes 1 -}}
+  {{ $scratch.Add "arrays" $listOfTypes -}}
+  {{/* missing final type... */}}
+{{ else -}}
+  {{ $scratch.Add "arrays" (first (sub $lenTypes 1) $listOfTypes) -}}
+  {{ $scratch.Add "finalType" (index $listOfTypes (sub $lenTypes 1)) -}}
+{{ end -}}
+
+{{ return $scratch -}}
+
+{{ define "partials/apis/inline/functions/recursiveArrayTypesAsListOfTypes" -}}
+  {{ $itemsByJsonPath := .itemsByJsonPath -}}
+  {{ $dataType := .dataType -}}
+  {{ $listOfTypes := .listOfTypes -}}
+
+  {{ with cond (hasPrefix $dataType.type "#/components/") (index $itemsByJsonPath $dataType.type) $dataType -}}
+    {{ $listOfTypes = $listOfTypes | append . }}
+    {{ if (eq $dataType.type "ARRAY") -}}
+      {{ $listOfTypes = partial "partials/apis/inline/functions/recursiveArrayTypesAsListOfTypes" (dict "itemsByJsonPath" $itemsByJsonPath "dataType" .items "listOfTypes" $listOfTypes) -}}
+    {{ end -}}
+  {{ end -}}
+
+  {{ return $listOfTypes -}}
+{{ end -}}

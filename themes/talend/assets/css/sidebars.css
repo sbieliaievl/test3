@@ -1,0 +1,188 @@
+.toc {
+    position: sticky;
+    top: 8%;
+}
+
+.inner-toc{
+  margin: 0 1.5rem;
+  background-color: #fff;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid #eaeaea;
+  border-left: 4px solid var(--primary-color);
+}
+
+.toc h3{
+  color: #000;
+}
+
+.toc a {
+  font-weight: 600;
+}
+
+.toc ul{
+    list-style: none;
+    padding: 0;
+}
+
+.toc ul li{
+  border-bottom: 1px solid #eaeaea;
+}
+
+.toc ul li a{
+    display: block;
+    padding:0.5rem 0.5rem 0.5rem 0;
+}
+
+.toc ul li:last-child{
+  border-bottom: none;
+}
+
+.toc ul ul{
+  border-top: 1px solid #eaeaea;
+  padding-left: 1rem;
+}
+
+.menu {
+    position: sticky;
+    top: 10%
+}
+
+.related-endpoints {
+    position: sticky;
+    top: 10%
+}
+
+.toc p{
+    padding-left: 2%
+}
+
+.menu ul {
+    list-style: none;
+}
+.menu-level-1 li {
+    font-size: 1.3em;
+}
+
+.menu-level-2{
+
+}
+
+.menu-level-2 li {
+    font-size: 95%;
+    padding-left: 2%;
+}
+
+.menu-level-3 li {
+    font-size: 90%;
+    padding-left: 0;
+}
+
+.menu-level-3{
+    padding-top: 2%;
+}
+
+.menu-level-3 li a {
+
+}
+
+.level-1-item {
+    margin-right: 5%;
+    padding: 3.5% 0 3.5% 3.5%;
+}
+
+.level-1-item ul li a  {
+    margin-right: 0;
+    padding: 3%;
+    display: block;
+}
+
+/* Collapsible menu stuff */
+
+label{
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+  }
+
+.expand{
+    color: #555;
+    display: none;
+    margin: 0 1rem;
+    padding: 0 0.5rem;
+}
+.collapse{
+    color: #555;
+    display: none;
+    margin: 0 1rem;
+    padding: 0 0.5rem;
+}
+
+input[type="checkbox"]{
+    position: absolute;
+    left: -9999px;
+}
+
+input[type="checkbox"] ~ ul{
+    height: 0;
+    transform: scaleY(0);
+}
+
+input[type="checkbox"]:checked ~ ul{
+    height: 100%;
+    transform-origin: top;
+    transition: transform .15s ease-out;
+    transform: scaleY(1);
+}
+
+input[type="checkbox"]:checked ~label .collapse{
+    display: block;
+}
+
+input[type="checkbox"]:checked ~ label .expand{
+    display: none;
+}
+
+.expand:focus {
+
+}
+
+input[type="checkbox"] ~ label .expand{
+  display: block;
+}
+
+.sidebar-nav label img{
+  margin-top: 0;
+}
+
+.sidebar-nav{
+  background: #fff;
+  border-right: 1px solid #eaeaea;
+}
+
+.sidebar-nav .menu ul{
+  background: #fff;
+  padding: 0;
+
+}
+
+.menu > .menu-level-1{
+  margin-top: 3.1rem;
+  border-top: 1px solid #eaeaea;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.sidebar-nav .menu ul > li{
+  border-bottom: 1px solid #eaeaea;
+}
+
+.sidebar-nav .menu ul>li:last-child {
+    border-bottom: none;
+}
+
+.sidebar-nav a{
+      color: #000;
+}
+
+.sidebar-nav .menu .level-1-item{
+      margin: 0;
+}

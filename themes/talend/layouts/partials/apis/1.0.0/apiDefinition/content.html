@@ -1,0 +1,89 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $currentPage := .currentPage -}}
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+
+    <h2 class="api-reference__api-title" id="top">{{ $apiDefinition.info.name -}}</h2>
+{{ with $apiDefinition.info.description -}}<div class="api__content_description wysiwyg">{{ replace . "# " "### " | markdownify -}}</div>{{ end -}}
+
+{{ with $apiDefinition.info -}}{{ partial "apis/1.0.0/apiDefinition/content/info" . -}}{{ end -}}
+{{ with $apiDefinition.contract.mediaTypes -}}
+    <div class="definition">
+      <h3 id="mediatypes">{{ i18n "api-media-type" (len .) -}}</h3>
+      <div>{{ delimit . ", " -}}</div>
+    </div>
+{{ end -}}
+
+{{ with $apiDefinition -}}
+    {{ $pathPartialGetPublishedEndpoints := partial "utils/findPartialPathForCurrentLayout" (dict "currentPage" $currentPage "partialName" "functions/getPublishedEndpoints.html") -}}
+    {{ $publishedEndpoints := partial $pathPartialGetPublishedEndpoints (dict "apiDefinition" .) -}}
+    <div class="definition">
+      <h3 id="endpoints">{{ i18n "api-endpoint" (len $publishedEndpoints) -}}</h3>
+      <ul class="endpoints">
+        {{ range $publishedEndpoints -}}
+        <li class="endpoint__value">
+          <span class="endpoint__url">{{ .url -}}</span>
+          {{ with .description -}}<div class="endpoint__description wysiwyg">{{ replace . "# " "### " | markdownify -}}</div>{{ end -}}
+        </li>
+        {{ end -}}
+      </ul>
+    </div>
+{{ end -}}
+    <div class="definition">
+      <h3 id="global-security">{{ i18n "api-global-security" -}}</h3>
+      <p class="note">{{ i18n "api-global-security-note" -}}</p>
+      <div>
+        {{ partial "apis/1.0.0/apiDefinition/content/securedBy" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "securedBy" $apiDefinition.contract.securedBy "context" "global-security") -}}
+      </div>
+    </div>
+{{ with $apiDefinition.contract.securitySchemes -}}
+    <section class="definition" aria-labelledby="securitySchemes">
+      <h3 id="securitySchemes">{{ i18n "api-security-scheme" (len .) -}}</h3>
+      <p class="note">{{ i18n "api-security-scheme-note" (len .) -}}</p>
+  {{ range $key,$securityScheme := . -}}
+    {{ partial "apis/1.0.0/apiDefinition/content/securityScheme" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "securityScheme" $securityScheme "securitySchemeKey" $key) -}}
+  {{ end -}}
+    </section>
+{{ end -}}
+
+{{/* Display the unsorted resources at the top of the page */}}
+{{ range $apiDefinition.contract.unsortedElementOrder -}}
+  {{- partial "apis/inline/content_elementInSection" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "currentPage" $currentPage "apiDefinition" $apiDefinition "jsonPath" .)  -}}
+{{ end -}}
+
+{{ range $key,$section := $apiDefinition.contract.sections -}}
+  {{ $idSection := index $idsByJsonPath (print "#/contract/sections/" $key ) -}}
+    <hr class="separator"/>
+    <section aria-labelledby="{{ $idSection }}">
+      <h2 id="{{ $idSection }}">{{$section.name -}}</h2>
+  {{ range $section.elementOrder -}}
+    {{- partial "apis/inline/content_elementInSection" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "currentPage" $currentPage "apiDefinition" $apiDefinition "jsonPath" .)  -}}
+  {{end -}}
+    </section>
+{{ end -}}
+
+<span class="back-to-top-wrapper"><a class="back-to-top" href="#"><span class="sr-only">{{ i18n "back-to-top" }}</span>↑</a></span>
+
+{{- define "partials/apis/inline/content_elementInSection" -}}
+  {{ $currentPage := .currentPage -}}
+  {{ $itemsByJsonPath := .itemsByJsonPath -}}
+  {{ $idsByJsonPath := .idsByJsonPath -}}
+  {{ $apiDefinition := .apiDefinition -}}
+  {{ $jsonPath := .jsonPath -}}
+
+  {{ $item := index $itemsByJsonPath $jsonPath -}}
+
+  {{ if (hasPrefix $jsonPath "#/contract/texts/") -}}
+    {{ $id := index $idsByJsonPath $jsonPath -}}
+      {{ partial "apis/1.0.0/apiDefinition/content/text" (dict "apiDefinition" $apiDefinition "text" $item "id" $id) -}}
+  {{ else if (hasPrefix $jsonPath "#/contract/resources/") -}}
+      {{ partial "apis/1.0.0/apiDefinition/content/resource" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "resource" $item "apiDefinition" $apiDefinition "currentPage" $currentPage) -}}
+  {{ else if (hasPrefix $jsonPath "#/contract/types/") -}}
+    {{ $id := index $idsByJsonPath $jsonPath -}}
+      {{ partial "apis/1.0.0/apiDefinition/content/dataType" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "dataType" $item "id" $id) -}}
+  {{ end -}}
+{{ end -}}

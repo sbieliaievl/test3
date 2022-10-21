@@ -1,0 +1,21 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+<!doctype html>
+<html lang="{{ .Site.Language.Lang }}">
+  <head>{{ partial "head" . -}}</head>
+  <body class="api-list">
+    <header class="header">{{ partial "header" . -}}</header>
+
+    <main id="content">
+      <h1 class="sr-only">{{ i18n "api-list" -}}</h1>
+{{ partial "apis/1.0.0/breadcrumb" . -}}
+{{ partial "apis/1.0.0/apisList/content" . -}}
+    </main>
+
+    <footer class="footer">{{ partial "footer" . -}}</footer>
+
+    {{ $js := resources.Get "js/apis.js"  | minify | fingerprint  }}
+    <script type="module" src="{{ $js.Permalink }}"></script>
+  </body>
+</html>

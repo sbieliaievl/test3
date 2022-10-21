@@ -1,0 +1,41 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{/*
+This function allows to find the accurate path of a partial relative to the layout defined in the front matter.
+It is used to manage several versions of the layout and to retrieve the right apis partial.
+How it works:
+- Loads the configuration: data/layoutsVersionsConfig.json and reverse the slice to have the latest versions first.
+- The function defines the current layout version.
+  - If the layout defined in the front matter doesn't exist into the configuration file, we assume that the current layout version is the latest defined into the configuration.
+  - Otherwise the current layout version is set relatively to the layout defined in the front matter.
+- The function loops through all layouts versions defined in the configuration file (starting from the current layout version and in descending order).
+  - It returns the accurate path if the partial exists.
+- If the partial couldn't have been retrieved, the function returns false.
+*/}}
+{{ $currentPage := .currentPage -}}
+{{ $partialName := .partialName -}}
+{{ $finalPath := false -}}
+
+{{ $layoutsVersions := $currentPage.Site.Data.layoutsVersions -}}
+{{ $currentLayoutVersion := (index $layoutsVersions 0).version -}}
+{{ range $layoutsVersions -}}
+  {{ if eq .layout $currentPage.Params.layout -}}
+    {{ $currentLayoutVersion = .version -}}
+  {{ end -}}
+{{ end -}}
+
+{{ $currentLayoutVersionFound := false -}}
+{{ range $layoutsVersions -}}
+  {{ if eq .version $currentLayoutVersion -}}
+    {{ $currentLayoutVersionFound = true -}}
+  {{ end -}}
+  {{ if $currentLayoutVersionFound -}}
+    {{ $completePartialPath :=  print "apis/" .version "/" $partialName -}}
+    {{ $pathToTry := print "partials/" $completePartialPath -}}
+    {{ if and (not $finalPath) (templates.Exists $pathToTry)  -}}
+      {{ $finalPath = $completePartialPath -}}
+    {{ end -}}
+  {{ end -}}
+{{ end -}}
+{{ return $finalPath -}}

@@ -1,0 +1,62 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{/*
+	Aims at sorting API Version pages according to the version.
+	There is only one sort in Hugo: lexicographic.
+
+	Lexicographic order has two downsides:
+		- it is sensible to the case (upper case letters are lower than lower case letters)
+		- it does not fit well with version numbers: "1.0.12" is lower lexicographically than "1.0.2"
+		  (because "2" is higher than the "1" of "12")
+
+	The idea is to generate a key that supports lexicographical order for each version and then sort these values:
+		- numbers are padded on the left with "0" up to the highest length of the compared values.
+		- considering "1.0.12", "1.0.2", "1.0.1"
+		   they are sorted like this:	"1.0.1"
+										"1.0.12"
+										"1.0.2"
+		  the values generated are: "1.0.12", "1.0.02", "1.0.01"
+		  which are sorted as follow:	"1.0.01"
+										"1.0.02"
+										"1.0.12"
+		- considering "100.10.125", "1.0.2", "1.0.1", the values generated are: "100.10.125", "001.00.002", "001.00.001"
+	As you may notice, the "." are useless so we actually don't use them.
+
+	There is still one downside though. This algorithm does not work with alphabetical letters.
+	In this case, we pad on the right, with " " character and we lower case the characters.
+		- considering "a", "pultry", "pig":
+			which are sorted as follow:	"a     "
+										"pig   "
+										"pultry"
+*/}}
+{{ $apiVersionPages := . -}}
+
+{{ $sortedPagesByVersion := $apiVersionPages -}}
+{{ if gt (len $apiVersionPages) 1 -}}
+	{{ $maxSegmentLength := 0 -}}
+	{{ range $apiVersionPages -}}
+		{{ $apiVersion := (index .Params "api-definition").info.version -}}
+		{{ range (split $apiVersion ".") -}}
+			{{ $maxSegmentLength = cond (gt (len .) $maxSegmentLength) (len .) $maxSegmentLength -}}
+		{{ end -}}
+	{{ end -}}
+
+	{{ $scratch := newScratch -}}
+	{{ range $apiVersionPage := $apiVersionPages -}}
+		{{ $versionFormatted := "" -}}
+		{{ $apiVersion := (index .Params "api-definition").info.version -}}
+		{{ range (split $apiVersion ".") -}}
+			{{ if substr . 0 1 | in "0123456789" -}}
+				{{ $versionFormatted = print $versionFormatted (strings.Repeat (sub $maxSegmentLength (len .)) "0" ) (lower .) -}}
+			{{ else -}}
+				{{ $versionFormatted = print $versionFormatted (lower .) (strings.Repeat (sub $maxSegmentLength (len .)) " " )  -}}
+			{{ end -}}
+		{{ end -}}
+		{{ $scratch.SetInMap "list" $versionFormatted $apiVersionPage -}}
+	{{ end -}}
+	{{ $sortedPagesByVersion = $scratch.GetSortedMapValues "list" -}}
+{{ end -}}
+
+{{ return $sortedPagesByVersion -}}

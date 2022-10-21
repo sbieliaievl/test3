@@ -1,0 +1,19 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+<div tabindex="-1" role="dialog" aria-labelledby="modal-label" hidden id="try-in-tester-version-modal" class="modal__overlay js-close-modal">
+  <div role="document" class="modal__wrapper scrollable">
+    <h2 id="modal-label" class="modal__title">{{ i18n "tester-upgrade-required" -}}</h2>
+    <div class="modal__content">
+      <p>{{ i18n "modal-try-in-version-tester-installed" -}} <strong id="js-current-version-tester"></strong>, {{ i18n "modal-try-in-version-tester-minimum-required" -}} <strong id="js-minimum-version-tester"></strong>.</p>
+      <a target="_blank" rel="noopener" href="https://help.talend.com/access/sources/content/topic?pageid=tester_update_extension&EnrichVersion=Cloud&afs:lang=en">
+        {{ i18n "learn-more-about-api-tester" -}}
+        <svg role="img" aria-label='{{ i18n "open-in-new-window" -}}' class="open-link-new-window-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+          <path d="M16 0v6h-2V3l-8.489 8.773-1.253-1.253L13 2h-3V0zm-4 10v4H2V4h4V2H0v14h14v-6z"></path>
+        </svg>
+      </a>
+    </div>
+    <button type="button" aria-label='{{ i18n "close-modal" -}}' class="js-close-modal modal__close btn--naked">&times;</button>
+  </div>
+</div>

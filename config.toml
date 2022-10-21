@@ -1,0 +1,64 @@
+# NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+# For more information on how to configure the whole API Portal
+# see https://gohugo.io/getting-started/configuration/
+
+# Indicates the default language of the portal Web site.
+# Labels are translated in the "i18n" directory
+# see https://gohugo.io/content-management/multilingual/
+DefaultContentLanguage = "en"
+
+# Name of the theme used to generate the Web site
+theme = "talend"
+relativeURLs = true
+baseURL = ""
+
+# Add support of syntax highlight
+# https://gohugo.io/content-management/syntax-highlighting/#generate-syntax-highlighter-css
+# CSS file is available in Talend theme's assets; file 07_highlight.css
+pygmentsUseClasses = true
+
+# Title used in the header and footer of the Web site
+[languages.en]
+  title = "API Portal"
+  weight = 1
+
+# Tells Hugo that the "apis" directory is actually a content directory
+# see https://gohugo.io/hugo-modules/configuration/#module-config-mounts
+[module]
+  [[module.mounts]]
+    source = "apis"
+    target = "content/apis"
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+
+[params]
+# The "api-list" parameter configures the way APIs are displayed in the list of APIs page ("/apis/").
+# By default APIs are sorted according to their names.
+# But it can be configured to gather them by topic.
+# Here is a sample configuration that creates a group entitled "Core APIs" which gathers the APIs
+# "contacts" and "tasks". These names are the names of sub-directories of "/apis".
+# Other APIs should be in the default group or they won't be displayed.
+
+#  [[params.api-list]]
+#    "Core APIs" = [ "contacts", "tasks" ]
+#  [[params.api-list]]
+#    "default" = [ "petstore" ]

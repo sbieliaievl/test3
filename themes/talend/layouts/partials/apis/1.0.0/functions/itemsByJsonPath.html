@@ -1,0 +1,46 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $apiDefinition := . -}}
+{{ $contract := $apiDefinition.contract -}}
+
+{{ $scratch := newScratch -}}
+{{/*
+	Index by their json path all elements that can be referenced:
+		- text
+		- resources
+		- types
+		- securitySchemes
+		- scopes
+		- components
+*/}}
+{{ range $type := slice "texts" "resources" "types" -}}
+	{{ with (index $contract $type) -}}
+		{{ range $key,$value := . -}}
+			{{ $scratch.SetInMap "itemsByJsonPath" (print "#/contract/" $type "/" $key) $value -}}
+		{{ end -}}
+	{{ end -}}
+{{ end -}}
+
+{{ with $contract.securitySchemes -}}
+	{{ range $securitySchemeKey,$securityScheme := . -}}
+		{{ $scratch.SetInMap "itemsByJsonPath" (print "#/contract/securitySchemes/" $securitySchemeKey) $securityScheme -}}
+		{{ with $securityScheme.settings.scopes -}}
+			{{ range $scopeSchemeKey,$scopeScheme := . -}}
+				{{ $scratch.SetInMap "itemsByJsonPath" (print "#/contract/securitySchemes/" $securitySchemeKey "/settings/scopes/" $scopeSchemeKey) $scopeScheme -}}
+			{{ end -}}
+		{{ end -}}
+	{{ end -}}
+{{ end -}}
+
+{{ with $apiDefinition.components -}}
+	{{ $component := . -}}
+	{{ range $type := slice "queryParameters" "headers" "pathVariables" "responses" -}}
+		{{ range $key,$value := index $component $type -}}
+			{{ $scratch.SetInMap "itemsByJsonPath" (print "#/components/" $type "/" $key) $value -}}
+		{{ end -}}
+	{{ end -}}
+{{ end -}}
+
+{{ return $scratch.Get "itemsByJsonPath" -}}

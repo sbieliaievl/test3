@@ -1,0 +1,22 @@
+{{/*
+NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $type := .type -}}
+{{ $context := .context -}}
+
+{{ partial "apis/1.0.0/apiDefinition/content/dataType_attributes" . -}}
+{{ with $type.examples -}}
+<div class="{{ $context }}__parameter-attribute-example">
+	<span class="metadata__label">{{ i18n "api-parameter-examples" (len .) -}}</span>
+  {{- if eq (len .) 1 -}}
+  <pre class="badge metadata__example">{{ range . -}}{{ .value -}}{{end -}}</pre>
+  {{- else -}}
+	<ul class="metadata-examples">
+    {{ range . -}}
+ 		<li><pre class="badge metadata__example">{{ .value -}}</pre></li>
+    {{ end -}}
+	</ul>
+  {{ end -}}
+</div>
+{{ end -}}

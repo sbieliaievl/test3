@@ -1,0 +1,15 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $currentPage := . -}}
+{{ $apiDefinition := (index $currentPage.Params "api-definition") -}}
+
+{{ with $apiDefinition -}}
+	{{ with (index $currentPage.Params "api-tryin") -}}
+		{{ $etn6Resource := . -}}
+		{{/* generates the entityTreenode used by the "Try-in-Tester" feature. */}}
+		{{ $targetPath := (print (path.Dir $currentPage.File) "/apitesterformat6.json") -}}
+		{{ $.Scratch.SetInMap "tryInTesterContext" "etnResource6Url" ( $etn6Resource | resources.FromString $targetPath).Permalink -}}
+	{{ end -}}
+{{ end -}}
+{{ return $.Scratch.Get "tryInTesterContext" -}}

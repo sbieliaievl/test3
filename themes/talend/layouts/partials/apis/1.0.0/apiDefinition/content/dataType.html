@@ -1,0 +1,34 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $dataType := .dataType -}}
+{{ $id := .id -}}
+{{ $randomId := delimit (shuffle (split (md5 "aria-controls for type") "" )) "" -}}
+
+<section id="{{ $id }}_anchor" class="datatype" aria-labelledby="{{ $id }}">
+	<div class="data-type__content">
+		<div class="data-type__header">
+			<h3 id="{{ $id }}">{{ $dataType.name -}}</h3>
+		</div>
+		<div class="definition__data-type definition">
+			<div id="tooltip_{{ $id }}" class="js-tooltip-content" >
+{{ with $dataType.description -}}<div class="data-type__description wysiwyg">{{ replace . "# " "#### " | markdownify -}}</div>{{ end -}}
+{{ with cond (hasPrefix $dataType.type "#/components/") (index $itemsByJsonPath $dataType.type) $dataType -}}{{/* Solve potential referenced component */}}
+	{{ partial "apis/1.0.0/apiDefinition/content/dataType_header" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" "data-type" "dataType" . ) -}}
+{{ end -}}
+			</div>
+
+{{ with $dataType.examples -}}
+	{{ $exampleId := print $id "_" $randomId -}}
+			<div class="definition-example">
+				<div id="{{ $exampleId }}" class="definition-example__title"><span>{{ $dataType.name -}}</span></div>
+				<div role="region" tabindex="0" class="code-container" aria-labelledby="{{ $exampleId }}">{{ partial "apis/1.0.0/apiDefinition/content/example_body_dataType" (dict "examples" . ) -}}</div>
+			</div>
+{{ end -}}
+		</div>
+	</div>
+</section>

@@ -1,0 +1,13 @@
+{{/*
+	NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $publishedEndpoints := slice -}}
+{{ with $apiDefinition.contract.baseUrls -}}
+	{{ range . -}}
+		{{ if eq .isPublished true -}}
+			{{ $publishedEndpoints = $publishedEndpoints | append . -}}
+		{{ end -}}
+	{{ end -}}
+{{ end -}}
+{{ return $publishedEndpoints -}}

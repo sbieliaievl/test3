@@ -1,0 +1,26 @@
+{{/*
+  NOTICE: Copyright 2022 Talend SA, Talend, Inc., and affiliates. All Rights Reserved. Customer’s use of the software contained herein is subject to the terms and conditions of the Agreement between Customer and Talend.
+*/}}
+
+{{ $itemsByJsonPath := .itemsByJsonPath -}}
+{{ $idsByJsonPath := .idsByJsonPath -}}
+{{ $apiDefinition := .apiDefinition -}}
+{{ $context := .context -}}
+{{ $typedParameter := .typedParameter -}}
+
+{{ $randomId := delimit (shuffle (split (md5 "aria-describedBy for Array property") "" )) "" -}}
+{{ $arraysAndFinalTypes := partial "partials/apis/1.0.0/apiDefinition/content/arrayType/getListOfArrayTypesAndFinalTypeAsScratch" (dict "itemsByJsonPath" $itemsByJsonPath "dataType" $typedParameter) -}}
+{{ $arrayTypes := $arraysAndFinalTypes.Get "arrays" -}}
+{{ $finalType := $arraysAndFinalTypes.Get "finalType" -}}
+<tr class="{{ $context }}__parameter">
+  <th class="{{ $context }}__parameter-type-label" scope="row" aria-describedby="{{ $randomId }}">{{ $typedParameter.name -}}</th>
+  <td></td>
+  <td class="{{ $context }}__parameter-type">
+    <span class="parameter-type">
+      {{ partial "partials/apis/1.0.0/apiDefinition/content/arrayType/array_type_label" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "arrayTypes" $arrayTypes "finalType" $finalType) -}}
+    </span>
+    {{ if $typedParameter.required -}}<span class="badge badge--warn">{{ i18n "api-parameter-required" -}}</span>{{else -}}<span class="badge">{{ i18n "api-parameter-optional" -}}</span>{{ end -}}</td>
+  <td class="{{ $context }}__parameter-attributes-examples">
+{{ partial "partials/apis/1.0.0/apiDefinition/content/arrayType/arrayType_details" (dict "itemsByJsonPath" $itemsByJsonPath "idsByJsonPath" $idsByJsonPath "apiDefinition" $apiDefinition "context" $context "arrayTypes" $arrayTypes "finalType" $finalType "id" $randomId "showTopArrayTypeExamples" true "isArrayDataType" false)}}
+  </td>
+</tr>
